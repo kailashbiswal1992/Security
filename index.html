@@ -10,32 +10,14 @@
       font-family: Arial, sans-serif;
       background: #f3f6fa;
       margin: 0; padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
     }
     header {
       background: #1e3a8a;
       color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 15px;
-      gap: 10px;
-    }
-    header-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 12px rgba(0,0,0,0.13); border: 2px solid #fff; background: #fff; flex-shrink: 0; }
-    header img {
-      height: 40px;
-      border-radius: 6px;
-      background: white;
-      padding: 2px;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
+      text-align: center;
+      padding: 15px;
     }
     .container {
-      flex: 1;
       max-width: 95%;
       margin: 20px auto;
       background: white;
@@ -102,14 +84,6 @@
     button.out-btn:hover {
       background: #b91c1c;
     }
-    footer {
-      background: #f1f5f9;
-      text-align: center;
-      padding: 10px;
-      font-size: 0.85rem;
-      color: #555;
-      border-top: 1px solid #ddd;
-    }
 
     /* Responsive styles */
     @media (max-width: 768px) {
@@ -144,9 +118,7 @@
 </head>
 <body>
   <header>
-    <!-- 🔹 Replace logo.png with your actual logo path -->
-    <img src="https://i.ibb.co/ZRNQxN5q/file-00000000777461fa82518c850f7680e9.png" alt="Logo">
-    <h1>Visitor Management</h1>
+    <h1>🏢 Visitor Management</h1>
   </header>
 
   <div class="container">
@@ -199,10 +171,190 @@
   </div>
 
   <script>
-    // Firebase + Visitor logic remains same as previous version...
-    // (Use the corrected JS I shared earlier with Twilio + Firestore fixes)
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Load flats from Firestore
+function loadFlatsFromFirebase() {
+  const flatSelect = document.getElementById('flat');
+  flatSelect.innerHTML = '<option value="">Loading flats...</option>';
+  db.collection('flats').get().then(snapshot => {
+    flatSelect.innerHTML = '<option value="">Select Flat</option>';
+    snapshot.forEach(doc => {
+      // Prefer doc.data().number if exists, else use doc.id
+      const flatNumber = doc.data().number || doc.id;
+      // Only add flats with length ≤ 3
+      if (flatNumber && flatNumber.toString().length <= 3) {
+        const option = document.createElement('option');
+        option.value = flatNumber;
+        option.text = `${flatNumber}`;
+        flatSelect.appendChild(option);
+      }
+    });
+    if (flatSelect.options.length === 1) {
+      flatSelect.innerHTML = '<option value="">No flats found</option>';
+    }
+  }).catch(err => {
+    flatSelect.innerHTML = '<option value="">Error loading flats</option>';
+    console.error('Error fetching flats:', err);
+  });
+}
+
+    // Visitor logic (localStorage)
+    const form = document.getElementById('visitorForm');
+    const tableBody = document.querySelector('#visitorTable tbody');
+    const mobileInput = document.getElementById('mobile');
+
+    document.addEventListener('DOMContentLoaded', function () {
+      loadVisitors();
+      loadFlatsFromFirebase();
+    });
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const mobileVal = document.getElementById('mobile').value.trim();
+      // Indian mobile: 10 digits, starts with 6-9
+      const mobileRegex = /^[6-9]\d{9}$/;
+
+      if (!mobileRegex.test(mobileVal)) {
+        alert('Please enter a valid 10-digit mobile number starting with 6-9.');
+        document.getElementById('mobile').focus();
+        return;
+      }
+
+      const now = new Date();
+      const inTime = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const date = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+
+      const visitor = {
+        date: date,
+        visitorType: document.getElementById('visitorType').value,
+        name: document.getElementById('name').value,
+        mobile: document.getElementById('mobile').value,
+        flat: document.getElementById('flat').value,
+        purpose: document.getElementById('purpose').value,
+        vehicle: document.getElementById('vehicle').value,
+        inTime: inTime,
+        outTime: ""
+      };
+
+      saveVisitor(visitor);
+      refreshTable();
+      form.reset();
+
+      // 🚨 Send SMS for testing
+      sendSMS(visitor);
+    });
+
+    function addVisitorToTable(visitor, index) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${visitor.date}</td>
+        <td>${visitor.visitorType}</td>
+        <td>${visitor.name}</td>
+        <td>${visitor.mobile}</td>
+        <td>${visitor.flat}</td>
+        <td>${visitor.purpose}</td>
+        <td>${visitor.vehicle}</td>
+        <td>${visitor.inTime}</td>
+        <td>
+          ${visitor.outTime 
+            ? visitor.outTime 
+            : `<button class="out-btn" onclick="markOut(${index})">Mark Out</button>`}
+        </td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+  function saveVisitor(visitor) {
+  db.collection('visitor').add(visitor)
+    .then(() => {
+      refreshTable(); // Optionally refresh table after adding
+    })
+    .catch((err) => {
+      alert('Error saving visitor: ' + err.message);
+      console.error('Firestore error:', err);
+    });
+}
+
+    function loadVisitors() {
+  tableBody.innerHTML = "";
+  db.collection('visitor').orderBy('date', 'desc').get()
+    .then(snapshot => {
+      let i = 0;
+      snapshot.forEach(doc => {
+        addVisitorToTable(doc.data(), i++);
+      });
+    })
+    .catch(err => {
+      alert('Error loading visitors: ' + err.message);
+      console.error('Firestore error:', err);
+    });
+}
+
+    function refreshTable() {
+      tableBody.innerHTML = "";
+      loadVisitors();
+    }
+
+   window.markOut = function(index) {
+  db.collection('visitor').orderBy('date', 'desc').get().then(snapshot => {
+    const docs = [];
+    snapshot.forEach(doc => docs.push(doc));
+    const visitorDoc = docs[index];
+    if (visitorDoc) {
+      const now = new Date();
+      visitorDoc.ref.update({
+        outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+      }).then(refreshTable);
+    }
+  });
+}
+
+    // 🚨 Twilio SMS Test Function
+    function sendSMS(visitor) {
+
+      const message = `📢 Visitor Alert:\nName: ${visitor.name}\nFlat: ${visitor.flat}\nPurpose: ${visitor.purpose}\nIn-Time: ${visitor.inTime}`;
+
+      // const creds = btoa(`${accountSid}:${authToken}`);
+      const creds = btoa(`${twilioConfig.accountSid}:${twilioConfig.authToken}`);
+
+      fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Basic ${creds}`,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          To: toNumber,
+          From: fromNumber,
+          Body: message
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("SMS API Response:", data))
+      .catch(err => console.error("SMS Error:", err));
+    }
+
+    // --- Auto-populate form when mobile exists ---
+    mobileInput.addEventListener('input', function() {
+      const mobileVal = mobileInput.value.trim();
+      if (mobileVal.length < 5) return; // minimal length for match
+
+      const visitors = JSON.parse(localStorage.getItem('visitors')) || [];
+      const found = visitors.slice().reverse().find(v => v.mobile === mobileVal);
+
+      if (found) {
+        document.getElementById('visitorType').value = found.visitorType;
+        document.getElementById('name').value = found.name;
+        document.getElementById('purpose').value = found.purpose;
+        document.getElementById('vehicle').value = found.vehicle;
+        // Do not populate flat!
+      }
+    });
   </script>
-  <div style="
+    <div style="
   position: fixed;
   bottom: 8px;
   right: 18px;
@@ -214,6 +366,6 @@
   font-family: 'Poppins', Arial, sans-serif;
 ">
   v2025.1.0.1
-</div>
+    </div>
 </body>
 </html>
