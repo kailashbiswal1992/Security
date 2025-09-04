@@ -327,8 +327,8 @@ function loadFlatsFromFirebase() {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         body: new URLSearchParams({
-          To: ${twilioConfig.toNumber},
-          From: ${twilioConfig.fromNumber},
+          To: twilioConfig.toNumber,
+          From: twilioConfig.fromNumber,
           Body: message
         })
       })
