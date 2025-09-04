@@ -12,7 +12,8 @@ const firebaseConfig = {
 // --- Twilio Credentials ---
 const twilioConfig = {
   accountSid: "AC5e3fc2c9dcc7e9fe498773c636cac085",
-  authToken: "aa3a642c0b2556fa96fd32866bb1118a",
+  authToken: "e5c99f3e8ed29862c8b292671ce19cb5",
+  
   fromNumber: "+17853476821",
   toNumber: "+919742040132"
 };
