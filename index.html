@@ -320,7 +320,7 @@ function loadFlatsFromFirebase() {
       // const creds = btoa(`${accountSid}:${authToken}`);
       const creds = btoa(`${twilioConfig.accountSid}:${twilioConfig.authToken}`);
 
-      fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+      fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioConfig.accountSid}/Messages.json`, {
         method: "POST",
         headers: {
           "Authorization": `Basic ${creds}`,
@@ -365,7 +365,7 @@ function loadFlatsFromFirebase() {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.2
+  v2025.1.0.3
     </div>
 </body>
 </html>
