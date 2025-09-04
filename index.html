@@ -1,371 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visitor Management</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f6fa;
-      margin: 0; padding: 0;
-    }
-    header {
-      background: #1e3a8a;
-      color: white;
-      text-align: center;
-      padding: 15px;
-    }
-    .container {
-      max-width: 95%;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    h2 {
-      color: #1e3a8a;
-      margin-bottom: 15px;
-    }
-    form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    form label {
-      display: none;
-    }
-    form input, form select, form button {
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1.1rem;
-      min-height: 44px;
-    }
-    form button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      cursor: pointer;
-      grid-column: span 2;
-      font-weight: bold;
-    }
-    form button:hover {
-      background: #1e40af;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 0.95rem;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background: #2563eb;
-      color: white;
-    }
-    button.out-btn {
-      background: #dc2626;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button.out-btn:hover {
-      background: #b91c1c;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitor Management</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f6fa;
+      margin: 0; padding: 0;
+    }
+    header {
+      background: #1e3a8a;
+      color: white;
+      text-align: center;
+      padding: 15px;
+    }
+    .container {
+      max-width: 95%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #1e3a8a;
+      margin-bottom: 15px;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    form label {
+      display: none;
+    }
+    form input, form select, form button {
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1.1rem;
+      min-height: 44px;
+    }
+    form button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+      grid-column: span 2;
+      font-weight: bold;
+    }
+    form button:hover {
+      background: #1e40af;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background: #2563eb;
+      color: white;
+    }
+    button.out-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button.out-btn:hover {
+      background: #b91c1c;
+    }
 
-    /* Responsive styles */
-    @media (max-width: 768px) {
-      form { grid-template-columns: 1fr; }
-      table { font-size: 0.85rem; display: block; overflow-x: auto; width: 100%; }
-      .container { padding: 10px; }
-      form input, form select, form button { font-size: 1.1rem; min-height: 44px; }
-    }
-    @media (max-width: 500px) {
-      form label {
-        display: block;
-        margin-bottom: 3px;
-        font-size: 0.95em;
-        color: #2563eb;
-      }
-      form input, form select, form button {
-        padding: 10px;
-        font-size: 1rem;
-      }
-    }
-    @media (max-width: 480px) {
-      .container { padding: 4px; }
-      h2 { font-size: 1.1rem; }
-      header h1 { font-size: 1.2rem; }
-      th, td { padding: 6px; }
-    }
-  </style>
-  <!-- Firebase SDKs -->
-  <script src="config.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      form { grid-template-columns: 1fr; }
+      table { font-size: 0.85rem; display: block; overflow-x: auto; width: 100%; }
+      .container { padding: 10px; }
+      form input, form select, form button { font-size: 1.1rem; min-height: 44px; }
+    }
+    @media (max-width: 500px) {
+      form label {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 0.95em;
+        color: #2563eb;
+      }
+      form input, form select, form button {
+        padding: 10px;
+        font-size: 1rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .container { padding: 4px; }
+      h2 { font-size: 1.1rem; }
+      header h1 { font-size: 1.2rem; }
+      th, td { padding: 6px; }
+    }
+  </style>
+  <!-- Firebase SDKs -->
+  <script src="config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <header>
-    <h1> Visitor Management</h1>
-  </header>
+  <header>
+    <h1>🏢 Visitor Management</h1>
+  </header>
 
-  <div class="container">
-    <h2> Add Visitor</h2>
-    <form id="visitorForm" autocomplete="off">
-      <label for="visitorType">Type</label>
-      <select id="visitorType" required>
-        <option value="">Select Visitor Type</option>
-        <option value="Guest">Guest</option>
-        <option value="Delivery Person">Delivery Person</option>
-      </select>
+  <div class="container">
+    <h2>➕ Add Visitor</h2>
+    <form id="visitorForm" autocomplete="off">
+      <label for="visitorType">Type</label>
+      <select id="visitorType" required>
+        <option value="">Select Visitor Type</option>
+        <option value="Guest">Guest</option>
+        <option value="Delivery Person">Delivery Person</option>
+      </select>
 
-      <label for="mobile">Mobile</label>
-      <input type="text" id="mobile" placeholder="Mobile Number" required inputmode="tel" maxlength="15">
+      <label for="mobile">Mobile</label>
+      <input type="text" id="mobile" placeholder="Mobile Number" required inputmode="tel" maxlength="15">
 
-      <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Visitor Name" required>
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Visitor Name" required>
 
-      <label for="flat">Flat</label>
-      <select id="flat" required>
-        <option value="">Loading flats...</option>
-      </select>
+      <label for="flat">Flat</label>
+      <select id="flat" required>
+        <option value="">Loading flats...</option>
+      </select>
 
-      <label for="purpose">Purpose</label>
-      <input type="text" id="purpose" placeholder="Purpose of Visit" required>
+      <label for="purpose">Purpose</label>
+      <input type="text" id="purpose" placeholder="Purpose of Visit" required>
 
-      <label for="vehicle">Vehicle</label>
-      <input type="text" id="vehicle" placeholder="Vehicle Number">
+      <label for="vehicle">Vehicle</label>
+      <input type="text" id="vehicle" placeholder="Vehicle Number">
 
-      <button type="submit">Add Visitor</button>
-    </form>
+      <button type="submit">Add Visitor</button>
+    </form>
 
-    <h2> Visitor Log</h2>
-    <table id="visitorTable">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Name</th>
-          <th>Mobile</th>
-          <th>Flat</th>
-          <th>Purpose</th>
-          <th>Vehicle</th>
-          <th>In-Time</th>
-          <th>Out-Time</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <h2>📋 Visitor Log</h2>
+    <table id="visitorTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>Flat</th>
+          <th>Purpose</th>
+          <th>Vehicle</th>
+          <th>In-Time</th>
+          <th>Out-Time</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-  <script>
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  <script>
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Load flats from Firestore
+    // Load flats from Firestore
 function loadFlatsFromFirebase() {
-  const flatSelect = document.getElementById('flat');
-  flatSelect.innerHTML = '<option value="">Loading flats...</option>';
-  db.collection('flats').get().then(snapshot => {
-    flatSelect.innerHTML = '<option value="">Select Flat</option>';
-    snapshot.forEach(doc => {
-      // Prefer doc.data().number if exists, else use doc.id
-      const flatNumber = doc.data().number || doc.id;
-      // Only add flats with length ≤ 3
-      if (flatNumber && flatNumber.toString().length <= 3) {
-        const option = document.createElement('option');
-        option.value = flatNumber;
-        option.text = `${flatNumber}`;
-        flatSelect.appendChild(option);
-      }
-    });
-    if (flatSelect.options.length === 1) {
-      flatSelect.innerHTML = '<option value="">No flats found</option>';
-    }
-  }).catch(err => {
-    flatSelect.innerHTML = '<option value="">Error loading flats</option>';
-    console.error('Error fetching flats:', err);
-  });
+  const flatSelect = document.getElementById('flat');
+  flatSelect.innerHTML = '<option value="">Loading flats...</option>';
+  db.collection('flats').get().then(snapshot => {
+    flatSelect.innerHTML = '<option value="">Select Flat</option>';
+    snapshot.forEach(doc => {
+      // Prefer doc.data().number if exists, else use doc.id
+      const flatNumber = doc.data().number || doc.id;
+      // Only add flats with length ≤ 3
+      if (flatNumber && flatNumber.toString().length <= 3) {
+        const option = document.createElement('option');
+        option.value = flatNumber;
+        option.text = `${flatNumber}`;
+        flatSelect.appendChild(option);
+      }
+    });
+    if (flatSelect.options.length === 1) {
+      flatSelect.innerHTML = '<option value="">No flats found</option>';
+    }
+  }).catch(err => {
+    flatSelect.innerHTML = '<option value="">Error loading flats</option>';
+    console.error('Error fetching flats:', err);
+  });
 }
 
-    // Visitor logic (localStorage)
-    const form = document.getElementById('visitorForm');
-    const tableBody = document.querySelector('#visitorTable tbody');
-    const mobileInput = document.getElementById('mobile');
+    // Visitor logic (localStorage)
+    const form = document.getElementById('visitorForm');
+    const tableBody = document.querySelector('#visitorTable tbody');
+    const mobileInput = document.getElementById('mobile');
 
-    document.addEventListener('DOMContentLoaded', function () {
-      loadVisitors();
-      loadFlatsFromFirebase();
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+      loadVisitors();
+      loadFlatsFromFirebase();
+    });
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-      const mobileVal = document.getElementById('mobile').value.trim();
-      // Indian mobile: 10 digits, starts with 6-9
-      const mobileRegex = /^[6-9]\d{9}$/;
+      const mobileVal = document.getElementById('mobile').value.trim();
+      // Indian mobile: 10 digits, starts with 6-9
+      const mobileRegex = /^[6-9]\d{9}$/;
 
-      if (!mobileRegex.test(mobileVal)) {
-        alert('Please enter a valid 10-digit mobile number starting with 6-9.');
-        document.getElementById('mobile').focus();
-        return;
-      }
+      if (!mobileRegex.test(mobileVal)) {
+        alert('Please enter a valid 10-digit mobile number starting with 6-9.');
+        document.getElementById('mobile').focus();
+        return;
+      }
 
-      const now = new Date();
-      const inTime = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      const date = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
+      const now = new Date();
+      const inTime = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const date = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
 
-      const visitor = {
-        date: date,
-        visitorType: document.getElementById('visitorType').value,
-        name: document.getElementById('name').value,
-        mobile: document.getElementById('mobile').value,
-        flat: document.getElementById('flat').value,
-        purpose: document.getElementById('purpose').value,
-        vehicle: document.getElementById('vehicle').value,
-        inTime: inTime,
-        outTime: ""
-      };
+      const visitor = {
+        date: date,
+        visitorType: document.getElementById('visitorType').value,
+        name: document.getElementById('name').value,
+        mobile: document.getElementById('mobile').value,
+        flat: document.getElementById('flat').value,
+        purpose: document.getElementById('purpose').value,
+        vehicle: document.getElementById('vehicle').value,
+        inTime: inTime,
+        outTime: ""
+      };
 
-      saveVisitor(visitor);
-      refreshTable();
-      form.reset();
+      saveVisitor(visitor);
+      refreshTable();
+      form.reset();
 
-      // Send SMS for testing
-      sendSMS(visitor);
-    });
+      // 🚨 Send SMS for testing
+      sendSMS(visitor);
+    });
 
-    function addVisitorToTable(visitor, index) {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${visitor.date}</td>
-        <td>${visitor.visitorType}</td>
-        <td>${visitor.name}</td>
-        <td>${visitor.mobile}</td>
-        <td>${visitor.flat}</td>
-        <td>${visitor.purpose}</td>
-        <td>${visitor.vehicle}</td>
-        <td>${visitor.inTime}</td>
-        <td>
-          ${visitor.outTime 
-            ? visitor.outTime 
-            : `<button class="out-btn" onclick="markOut(${index})">Mark Out</button>`}
-        </td>
-      `;
-      tableBody.appendChild(row);
-    }
+    function addVisitorToTable(visitor, index) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${visitor.date}</td>
+        <td>${visitor.visitorType}</td>
+        <td>${visitor.name}</td>
+        <td>${visitor.mobile}</td>
+        <td>${visitor.flat}</td>
+        <td>${visitor.purpose}</td>
+        <td>${visitor.vehicle}</td>
+        <td>${visitor.inTime}</td>
+        <td>
+          ${visitor.outTime 
+            ? visitor.outTime 
+            : `<button class="out-btn" onclick="markOut(${index})">Mark Out</button>`}
+        </td>
+      `;
+      tableBody.appendChild(row);
+    }
 
-  function saveVisitor(visitor) {
-  db.collection('visitor').add(visitor)
-    .then(() => {
-      refreshTable(); // Optionally refresh table after adding
-    })
-    .catch((err) => {
-      alert('Error saving visitor: ' + err.message);
-      console.error('Firestore error:', err);
-    });
+  function saveVisitor(visitor) {
+  db.collection('visitor').add(visitor)
+    .then(() => {
+      refreshTable(); // Optionally refresh table after adding
+    })
+    .catch((err) => {
+      alert('Error saving visitor: ' + err.message);
+      console.error('Firestore error:', err);
+    });
 }
 
-    function loadVisitors() {
-  tableBody.innerHTML = "";
-  db.collection('visitor').orderBy('date', 'desc').get()
-    .then(snapshot => {
-      let i = 0;
-      snapshot.forEach(doc => {
-        addVisitorToTable(doc.data(), i++);
-      });
-    })
-    .catch(err => {
-      alert('Error loading visitors: ' + err.message);
-      console.error('Firestore error:', err);
-    });
+    function loadVisitors() {
+  tableBody.innerHTML = "";
+  db.collection('visitor').orderBy('date', 'desc').get()
+    .then(snapshot => {
+      let i = 0;
+      snapshot.forEach(doc => {
+        addVisitorToTable(doc.data(), i++);
+      });
+    })
+    .catch(err => {
+      alert('Error loading visitors: ' + err.message);
+      console.error('Firestore error:', err);
+    });
 }
 
-    function refreshTable() {
-      tableBody.innerHTML = "";
-      loadVisitors();
-    }
+    function refreshTable() {
+      tableBody.innerHTML = "";
+      loadVisitors();
+    }
 
-   window.markOut = function(index) {
-  db.collection('visitor').orderBy('date', 'desc').get().then(snapshot => {
-    const docs = [];
-    snapshot.forEach(doc => docs.push(doc));
-    const visitorDoc = docs[index];
-    if (visitorDoc) {
-      const now = new Date();
-      visitorDoc.ref.update({
-        outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-      }).then(refreshTable);
-    }
-  });
+   window.markOut = function(index) {
+  db.collection('visitor').orderBy('date', 'desc').get().then(snapshot => {
+    const docs = [];
+    snapshot.forEach(doc => docs.push(doc));
+    const visitorDoc = docs[index];
+    if (visitorDoc) {
+      const now = new Date();
+      visitorDoc.ref.update({
+        outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+      }).then(refreshTable);
+    }
+  });
 }
 
-    // Twilio SMS Test Function
-    function sendSMS(visitor) {
+    // 🚨 Twilio SMS Test Function
+    function sendSMS(visitor) {
 
-      const message = ` Visitor Alert:\nName: ${visitor.name}\nFlat: ${visitor.flat}\nPurpose: ${visitor.purpose}\nIn-Time: ${visitor.inTime}`;
+      const message = `📢 Visitor Alert:\nName: ${visitor.name}\nFlat: ${visitor.flat}\nPurpose: ${visitor.purpose}\nIn-Time: ${visitor.inTime}`;
 
-      // const creds = btoa(`${accountSid}:${authToken}`);
-      const creds = btoa(`${twilioConfig.accountSid}:${twilioConfig.authToken}`);
+      // const creds = btoa(`${accountSid}:${authToken}`);
+      const creds = btoa(`${twilioConfig.accountSid}:${twilioConfig.authToken}`);
 
-      fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioConfig.accountSid}/Messages.json`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Basic ${creds}`,
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: new URLSearchParams({
-          To: twilioConfig.toNumber,
-          From: twilioConfig.fromNumber,
-          Body: message
-        })
-      })
-      .then(res => res.json())
-      .then(data => console.log("SMS API Response:", data))
-      .catch(err => console.error("SMS Error:", err));
-    }
+      fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioConfig.accountSid}/Messages.json`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Basic ${creds}`,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          To: twilioConfig.toNumber,
+          From: twilioConfig.fromNumber,
+          Body: message
+        })
+      })
+      .then(res => res.json())
+      .then(data => console.log("SMS API Response:", data))
+      .catch(err => console.error("SMS Error:", err));
+    }
 
-    // --- Auto-populate form when mobile exists ---
-    mobileInput.addEventListener('input', function() {
-      const mobileVal = mobileInput.value.trim();
-      if (mobileVal.length < 5) return; // minimal length for match
+    // --- Auto-populate form when mobile exists ---
+    mobileInput.addEventListener('input', function() {
+      const mobileVal = mobileInput.value.trim();
+      if (mobileVal.length < 5) return; // minimal length for match
 
-      const visitors = JSON.parse(localStorage.getItem('visitors')) || [];
-      const found = visitors.slice().reverse().find(v => v.mobile === mobileVal);
+      const visitors = JSON.parse(localStorage.getItem('visitors')) || [];
+      const found = visitors.slice().reverse().find(v => v.mobile === mobileVal);
 
-      if (found) {
-        document.getElementById('visitorType').value = found.visitorType;
-        document.getElementById('name').value = found.name;
-        document.getElementById('purpose').value = found.purpose;
-        document.getElementById('vehicle').value = found.vehicle;
-        // Do not populate flat!
-      }
-    });
-  </script>
-    <div style="
-  position: fixed;
-  bottom: 8px;
-  right: 18px;
-  font-size: 12px;
-  color: #2563eb;
-  opacity: 0.35;
-  background: transparent;
-  pointer-events: none;
-  font-family: 'Poppins', Arial, sans-serif;
+      if (found) {
+        document.getElementById('visitorType').value = found.visitorType;
+        document.getElementById('name').value = found.name;
+        document.getElementById('purpose').value = found.purpose;
+        document.getElementById('vehicle').value = found.vehicle;
+        // Do not populate flat!
+      }
+    });
+  </script>
+    <div style="
+  position: fixed;
+  bottom: 8px;
+  right: 18px;
+  font-size: 12px;
+  color: #2563eb;
+  opacity: 0.35;
+  background: transparent;
+  pointer-events: none;
+  font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.3
-    </div>
+  v2025.1.0.5
+    </div>
 </body>
 </html>
