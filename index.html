@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -311,7 +312,19 @@ function loadFlatsFromFirebase() {
     }
   });
 }
+function showVendorPopup() {
+  document.getElementById('vendorPopup').style.display = 'flex';
+}
 
+document.getElementById('vendorConfirmBtn').addEventListener('click', function() {
+  const vendorVal = document.getElementById('vendorDropdown').value;
+  if (vendorVal) {
+    purposeInput.value = vendorVal;
+    document.getElementById('vendorPopup').style.display = 'none';
+  } else {
+    alert('Please select a vendor');
+  }
+});
     // 🚨 Twilio SMS Test Function
     function sendSMS(visitor) {
 
@@ -338,21 +351,39 @@ function loadFlatsFromFirebase() {
     }
 
     // --- Auto-populate form when mobile exists ---
-    mobileInput.addEventListener('input', function() {
-      const mobileVal = mobileInput.value.trim();
-      if (mobileVal.length < 5) return; // minimal length for match
+    // --- Auto-populate form when mobile exists ---
+mobileInput.addEventListener('input', function() {
+  const mobileVal = mobileInput.value.trim();
+  if (mobileVal.length < 5) return; // minimal length for match
 
-      const visitors = JSON.parse(localStorage.getItem('visitors')) || [];
-      const found = visitors.slice().reverse().find(v => v.mobile === mobileVal);
-
-      if (found) {
-        document.getElementById('visitorType').value = found.visitorType;
-        document.getElementById('name').value = found.name;
-        document.getElementById('purpose').value = found.purpose;
-        document.getElementById('vehicle').value = found.vehicle;
+  db.collection('visitor')
+    .where('mobile', '==', mobileVal)
+    .orderBy('date', 'desc')
+    .limit(1)
+    .get()
+    .then(snapshot => {
+      if (!snapshot.empty) {
+        const found = snapshot.docs[0].data();
+        document.getElementById('visitorType').value = found.visitorType || '';
+        document.getElementById('name').value = found.name || '';
+        document.getElementById('purpose').value = found.purpose || '';
+        document.getElementById('vehicle').value = found.vehicle || '';
         // Do not populate flat!
       }
     });
+});
+const visitorTypeSelect = document.getElementById('visitorType');
+const purposeInput = document.getElementById('purpose');
+
+visitorTypeSelect.addEventListener('change', function() {
+  if (this.value === 'Guest') {
+    purposeInput.value = 'Guest Visit';
+  } else if (this.value === 'Delivery Person') {
+    showVendorPopup();
+  } else {
+    purposeInput.value = '';
+  }
+});
   </script>
     <div style="
   position: fixed;
@@ -365,7 +396,25 @@ function loadFlatsFromFirebase() {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.3
+  v2025.1.0.4
     </div>
+    <div id="vendorPopup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#fff; padding:20px 30px; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.13); min-width:250px;">
+    <h3 style="margin-top:0;">Select Vendor</h3>
+    <select id="vendorDropdown" style="width:100%;padding:8px;font-size:1rem;">
+      <option value="">Select Vendor</option>
+      <option>Zomato</option>
+      <option>Swiggy</option>
+      <option>Amazon</option>
+      <option>Flipkart</option>
+      <option>BigBasket</option>
+      <option>Dominos</option>
+      <option>Other</option>
+    </select>
+    <div style="margin-top:16px;text-align:right;">
+      <button id="vendorConfirmBtn" style="padding:8px 18px;background:#2563eb;color:#fff;border:none;border-radius:5px;cursor:pointer;">Confirm</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
