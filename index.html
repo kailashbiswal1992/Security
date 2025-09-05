@@ -6,103 +6,47 @@
   <title>Visitor Management</title>
   <style>
     * { box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f6fa;
-      margin: 0; padding: 0;
-    }
-    header {
-      background: #1e3a8a;
-      color: white;
-      text-align: center;
-      padding: 15px;
-    }
+    body { font-family: Arial, sans-serif; background: #f3f6fa; margin: 0; padding: 0; }
+    header { background: #1e3a8a; color: white; text-align: center; padding: 15px; }
     .container {
-      max-width: 95%;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
+      max-width: 95%; margin: 20px auto; background: white;
+      padding: 20px; border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    h2 {
-      color: #1e3a8a;
-      margin-bottom: 15px;
-    }
+    h2 { color: #1e3a8a; margin-bottom: 15px; }
     form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 20px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 15px; margin-bottom: 20px;
     }
-    form label {
-      display: none;
-    }
+    form label { display: none; }
     form input, form select, form button {
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1.1rem;
-      min-height: 44px;
+      padding: 12px; border-radius: 6px; border: 1px solid #ccc;
+      font-size: 1.1rem; min-height: 44px;
     }
     form button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      cursor: pointer;
-      grid-column: span 2;
-      font-weight: bold;
+      background: #2563eb; color: white; border: none;
+      cursor: pointer; grid-column: span 2; font-weight: bold;
     }
-    form button:hover {
-      background: #1e40af;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 0.95rem;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background: #2563eb;
-      color: white;
-    }
+    form button:hover { background: #1e40af; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+    table, th, td { border: 1px solid #ccc; }
+    th, td { padding: 10px; text-align: center; }
+    th { background: #2563eb; color: white; }
     button.out-btn {
-      background: #dc2626;
-      color: white;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 4px;
-      cursor: pointer;
+      background: #dc2626; color: white; border: none;
+      padding: 6px 10px; border-radius: 4px; cursor: pointer;
     }
-    button.out-btn:hover {
-      background: #b91c1c;
-    }
+    button.out-btn:hover { background: #b91c1c; }
 
-    /* Responsive styles */
+    /* Responsive */
     @media (max-width: 768px) {
       form { grid-template-columns: 1fr; }
       table { font-size: 0.85rem; display: block; overflow-x: auto; width: 100%; }
       .container { padding: 10px; }
-      form input, form select, form button { font-size: 1.1rem; min-height: 44px; }
     }
     @media (max-width: 500px) {
-      form label {
-        display: block;
-        margin-bottom: 3px;
-        font-size: 0.95em;
-        color: #2563eb;
-      }
-      form input, form select, form button {
-        padding: 10px;
-        font-size: 1rem;
-      }
+      form label { display: block; margin-bottom: 3px; font-size: 0.95em; color: #2563eb; }
+      form input, form select, form button { padding: 10px; font-size: 1rem; }
     }
     @media (max-width: 480px) {
       .container { padding: 4px; }
@@ -111,7 +55,6 @@
       th, td { padding: 6px; }
     }
   </style>
-  <!-- Firebase SDKs -->
   <script src="config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -151,19 +94,15 @@
       <button type="submit">Add Visitor</button>
     </form>
 
+    <!-- 📌 Date Filter -->
+
     <h2>📋 Visitor Log</h2>
     <table id="visitorTable">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Name</th>
-          <th>Mobile</th>
-          <th>Flat</th>
-          <th>Purpose</th>
-          <th>Vehicle</th>
-          <th>In-Time</th>
-          <th>Out-Time</th>
+          <th>Date</th><th>Type</th><th>Name</th><th>Mobile</th>
+          <th>Flat</th><th>Purpose</th><th>Vehicle</th>
+          <th>In-Time</th><th>Out-Time</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -173,84 +112,34 @@
   <script>
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    // Load flats from Firestore
-function loadFlatsFromFirebase() {
-  const flatSelect = document.getElementById('flat');
-  flatSelect.innerHTML = '<option value="">Loading flats...</option>';
-  db.collection('flats').get().then(snapshot => {
-    flatSelect.innerHTML = '<option value="">Select Flat</option>';
-    snapshot.forEach(doc => {
-      // Prefer doc.data().number if exists, else use doc.id
-      const flatNumber = doc.data().number || doc.id;
-      // Only add flats with length ≤ 3
-      if (flatNumber && flatNumber.toString().length <= 3) {
-        const option = document.createElement('option');
-        option.value = flatNumber;
-        option.text = `${flatNumber}`;
-        flatSelect.appendChild(option);
-      }
-    });
-    if (flatSelect.options.length === 1) {
-      flatSelect.innerHTML = '<option value="">No flats found</option>';
-    }
-  }).catch(err => {
-    flatSelect.innerHTML = '<option value="">Error loading flats</option>';
-    console.error('Error fetching flats:', err);
-  });
-}
-
-    // Visitor logic (localStorage)
     const form = document.getElementById('visitorForm');
     const tableBody = document.querySelector('#visitorTable tbody');
     const mobileInput = document.getElementById('mobile');
+    const dateFilter = document.getElementById('dateFilter');
+    const customDateInput = document.getElementById('customDate');
+    let unsubscribe = null;
 
-    document.addEventListener('DOMContentLoaded', function () {
-      loadVisitors();
-      loadFlatsFromFirebase();
-    });
+    function loadFlatsFromFirebase() {
+      const flatSelect = document.getElementById('flat');
+      flatSelect.innerHTML = '<option value="">Loading flats...</option>';
+      db.collection('flats').get().then(snapshot => {
+        flatSelect.innerHTML = '<option value="">Select Flat</option>';
+        snapshot.forEach(doc => {
+          const flatNumber = doc.data().number || doc.id;
+          const option = document.createElement('option');
+          option.value = flatNumber;
+          option.text = `${flatNumber}`;
+          flatSelect.appendChild(option);
+        });
+      });
+    }
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const mobileVal = document.getElementById('mobile').value.trim();
-      // Indian mobile: 10 digits, starts with 6-9
-      const mobileRegex = /^[6-9]\d{9}$/;
-
-      if (!mobileRegex.test(mobileVal)) {
-        alert('Please enter a valid 10-digit mobile number starting with 6-9.');
-        document.getElementById('mobile').focus();
-        return;
-      }
-
-      const now = new Date();
-      const inTime = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      const date = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
-
-      const visitor = {
-        date: date,
-        visitorType: document.getElementById('visitorType').value,
-        name: document.getElementById('name').value,
-        mobile: document.getElementById('mobile').value,
-        flat: document.getElementById('flat').value,
-        purpose: document.getElementById('purpose').value,
-        vehicle: document.getElementById('vehicle').value,
-        inTime: inTime,
-        outTime: ""
-      };
-
-      saveVisitor(visitor);
-      refreshTable();
-      form.reset();
-
-      // 🚨 Send SMS for testing
-      sendSMS(visitor);
-    });
-
-    function addVisitorToTable(visitor, index) {
+    function addVisitorToTable(visitor, id) {
+      const vDate = visitor.date.toDate ? visitor.date.toDate() : new Date(visitor.date);
+      const formattedDate = vDate.toLocaleDateString('en-GB');
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${visitor.date}</td>
+        <td>${formattedDate}</td>
         <td>${visitor.visitorType}</td>
         <td>${visitor.name}</td>
         <td>${visitor.mobile}</td>
@@ -258,114 +147,122 @@ function loadFlatsFromFirebase() {
         <td>${visitor.purpose}</td>
         <td>${visitor.vehicle}</td>
         <td>${visitor.inTime}</td>
-        <td>
-          ${visitor.outTime 
-            ? visitor.outTime 
-            : `<button class="out-btn" onclick="markOut(${index})">Mark Out</button>`}
-        </td>
+        <td>${visitor.outTime ? visitor.outTime : `<button class="out-btn" onclick="markOut('${id}')">Mark Out</button>`}</td>
       `;
       tableBody.appendChild(row);
     }
 
-  function saveVisitor(visitor) {
-  db.collection('visitor').add(visitor)
-    .then(() => {
-      refreshTable(); // Optionally refresh table after adding
-    })
-    .catch((err) => {
-      alert('Error saving visitor: ' + err.message);
-      console.error('Firestore error:', err);
-    });
-}
-
-    function loadVisitors() {
-  tableBody.innerHTML = "";
-  db.collection('visitor').orderBy('date', 'desc').get()
-    .then(snapshot => {
-      let i = 0;
-      snapshot.forEach(doc => {
-        addVisitorToTable(doc.data(), i++);
-      });
-    })
-    .catch(err => {
-      alert('Error loading visitors: ' + err.message);
-      console.error('Firestore error:', err);
-    });
-}
-
-    function refreshTable() {
+    // 📌 Load visitors based on date range
+    function loadVisitorsByDate(dateObj) {
+      if (unsubscribe) unsubscribe(); // clear old listener
       tableBody.innerHTML = "";
-      loadVisitors();
+
+      const start = new Date(dateObj);
+      start.setHours(0,0,0,0);
+      const end = new Date(dateObj);
+      end.setHours(23,59,59,999);
+
+      unsubscribe = db.collection('visitor')
+        .where('date', '>=', firebase.firestore.Timestamp.fromDate(start))
+        .where('date', '<=', firebase.firestore.Timestamp.fromDate(end))
+        .orderBy('date', 'desc')
+        .onSnapshot(snapshot => {
+          tableBody.innerHTML = "";
+          snapshot.forEach(doc => addVisitorToTable(doc.data(), doc.id));
+        });
     }
 
-   window.markOut = function(index) {
-  db.collection('visitor').orderBy('date', 'desc').get().then(snapshot => {
-    const docs = [];
-    snapshot.forEach(doc => docs.push(doc));
-    const visitorDoc = docs[index];
-    if (visitorDoc) {
+    window.markOut = function(id) {
       const now = new Date();
-      visitorDoc.ref.update({
+      db.collection('visitor').doc(id).update({
         outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-      }).then(refreshTable);
+      });
     }
-  });
-}
 
-    // 🚨 Twilio SMS Test Function
     function sendSMS(visitor) {
-
       const message = `📢 Visitor Alert:\nName: ${visitor.name}\nFlat: ${visitor.flat}\nPurpose: ${visitor.purpose}\nIn-Time: ${visitor.inTime}`;
-
-      // const creds = btoa(`${accountSid}:${authToken}`);
       const creds = btoa(`${twilioConfig.accountSid}:${twilioConfig.authToken}`);
-
       fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioConfig.accountSid}/Messages.json`, {
         method: "POST",
-        headers: {
-          "Authorization": `Basic ${creds}`,
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+        headers: { "Authorization": `Basic ${creds}`, "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-          To: twilioConfig.toNumber,
-          From: twilioConfig.fromNumber,
-          Body: message
+          To: twilioConfig.toNumber, From: twilioConfig.fromNumber, Body: message
         })
-      })
-      .then(res => res.json())
-      .then(data => console.log("SMS API Response:", data))
-      .catch(err => console.error("SMS Error:", err));
+      }).then(res => res.json()).then(data => console.log("SMS:", data));
     }
 
-    // --- Auto-populate form when mobile exists ---
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const mobileVal = mobileInput.value.trim();
+      if (!/^[6-9]\d{9}$/.test(mobileVal)) {
+        alert('Please enter a valid 10-digit mobile number starting with 6-9.');
+        return;
+      }
+      const now = new Date();
+      const visitor = {
+        date: firebase.firestore.Timestamp.fromDate(now),
+        visitorType: document.getElementById('visitorType').value,
+        name: document.getElementById('name').value,
+        mobile: mobileVal,
+        flat: document.getElementById('flat').value,
+        purpose: document.getElementById('purpose').value,
+        vehicle: document.getElementById('vehicle').value,
+        inTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        outTime: ""
+      };
+      db.collection('visitor').add(visitor);
+      sendSMS(visitor);
+      form.reset();
+    });
+
+    // 📌 Auto-fill from Firestore by mobile
     mobileInput.addEventListener('input', function() {
       const mobileVal = mobileInput.value.trim();
-      if (mobileVal.length < 5) return; // minimal length for match
+      if (mobileVal.length < 10) return;
+      db.collection('visitor')
+        .where('mobile', '==', mobileVal).orderBy('date', 'desc').limit(1).get()
+        .then(snapshot => {
+          if (!snapshot.empty) {
+            const found = snapshot.docs[0].data();
+            document.getElementById('visitorType').value = found.visitorType;
+            document.getElementById('name').value = found.name;
+            document.getElementById('purpose').value = found.purpose;
+            document.getElementById('vehicle').value = found.vehicle;
+          }
+        });
+    });
 
-      const visitors = JSON.parse(localStorage.getItem('visitors')) || [];
-      const found = visitors.slice().reverse().find(v => v.mobile === mobileVal);
-
-      if (found) {
-        document.getElementById('visitorType').value = found.visitorType;
-        document.getElementById('name').value = found.name;
-        document.getElementById('purpose').value = found.purpose;
-        document.getElementById('vehicle').value = found.vehicle;
-        // Do not populate flat!
+    // 📌 Date filter handling
+    dateFilter.addEventListener('change', function() {
+      const today = new Date();
+      if (this.value === "today") {
+        customDateInput.style.display = "none";
+        loadVisitorsByDate(today);
+      } else if (this.value === "yesterday") {
+        customDateInput.style.display = "none";
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+        loadVisitorsByDate(yesterday);
+      } else {
+        customDateInput.style.display = "inline-block";
       }
     });
+
+    customDateInput.addEventListener('change', function() {
+      if (this.value) {
+        loadVisitorsByDate(new Date(this.value));
+      }
+    });
+
+    // Init
+    document.addEventListener('DOMContentLoaded', function () {
+      loadFlatsFromFirebase();
+      loadVisitorsByDate(new Date()); // default today
+    });
   </script>
-    <div style="
-  position: fixed;
-  bottom: 8px;
-  right: 18px;
-  font-size: 12px;
-  color: #2563eb;
-  opacity: 0.35;
-  background: transparent;
-  pointer-events: none;
-  font-family: 'Poppins', Arial, sans-serif;
-">
-  v2025.1.0.5
-    </div>
+
+  <div style="position: fixed; bottom: 8px; right: 18px; font-size: 12px; color: #2563eb; opacity: 0.35;">
+    v2025.1.2.0
+  </div>
 </body>
 </html>
