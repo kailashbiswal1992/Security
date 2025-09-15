@@ -208,6 +208,17 @@ header h1 {
         <option value="Guest">Guest</option>
         <option value="Delivery Person">Delivery Person</option>
       </select>
+      <label for="vendor" id="vendorLabel" style="display:none;">Vendor</label>
+<select id="vendor" style="display:none;">
+  <option value="">Select Vendor (optional)</option>
+  <option value="Swiggy">Swiggy</option>
+  <option value="Zomato">Zomato</option>
+  <option value="Dunzo">Dunzo</option>
+  <option value="Amazon">Amazon</option>
+  <option value="Flipkart">Flipkart</option>
+  <option value="Uber Eats">Uber Eats</option>
+  <option value="Other">Other Agent Name</option>
+</select>
 
       <label for="mobile">Mobile</label>
       <input type="text" id="mobile" placeholder="Mobile Number" required inputmode="tel" maxlength="15">
@@ -331,6 +342,7 @@ function loadFlatsFromFirebase() {
       const visitor = {
         date: date,
         visitorType: document.getElementById('visitorType').value,
+        vendor: document.getElementById('vendor').value,
         name: document.getElementById('name').value,
         mobile: document.getElementById('mobile').value,
         flat: document.getElementById('flat').value,
@@ -468,6 +480,20 @@ function loadVisitors(filterDate = null) {
         // Do not populate flat!
       }
     });
+    const visitorType = document.getElementById('visitorType');
+const vendor = document.getElementById('vendor');
+const vendorLabel = document.getElementById('vendorLabel');
+
+visitorType.addEventListener('change', function() {
+  if (visitorType.value === 'Delivery Person') {
+    vendor.style.display = '';
+    vendorLabel.style.display = '';
+  } else {
+    vendor.style.display = 'none';
+    vendorLabel.style.display = 'none';
+    vendor.value = '';
+  }
+});
   </script>
     <div style="
   position: fixed;
