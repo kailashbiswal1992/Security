@@ -208,17 +208,14 @@ header h1 {
         <option value="Guest">Guest</option>
         <option value="Delivery Person">Delivery Person</option>
       </select>
-      <label for="vendor" id="vendorLabel" style="display:none;">Vendor</label>
-<select id="vendor" style="display:none;">
-  <option value="">Select Vendor (optional)</option>
-  <option value="Swiggy">Swiggy</option>
-  <option value="Zomato">Zomato</option>
-  <option value="Dunzo">Dunzo</option>
-  <option value="Amazon">Amazon</option>
-  <option value="Flipkart">Flipkart</option>
-  <option value="Uber Eats">Uber Eats</option>
-  <option value="Other">Other Agent Name</option>
-</select>
+    <label for="vendor" id="vendorLabel" style="display:none;">Vendor</label><select id="vendor" style="display:none;">  <option value="" disabled selected>Select Vendor (optional)</option>
+  <!-- Food Delivery -->  <optgroup label=" Food Delivery">    <option value="Swiggy">Swiggy</option>    <option value="Zomato">Zomato</option>    <option value="Uber Eats">Uber Eats</option>  </optgroup>
+  <!-- Medicine Delivery -->  <optgroup label=" Medicine Delivery">    <option value="PharmEasy">PharmEasy</option>    <option value="NetMeds">NetMeds</option>    <option value="Tata 1mg">Tata 1mg</option>    <option value="Apollo Pharmacy">Apollo Pharmacy</option>    <option value="MedPlus">MedPlus</option>  </optgroup>
+  <!-- Gifts & Flowers -->  <optgroup label=" Gifts & Flowers">    <option value="Ferns N Petals">Ferns N Petals</option>    <option value="IGP">IGP (Indian Gifts Portal)</option>    <option value="FlowerAura">FlowerAura</option>    <option value="Winni">Winni</option>    <option value="Archies Online">Archies Online</option>  </optgroup>
+  <!-- Courier & Parcel -->  <optgroup label=" Courier & Parcel">    <option value="Blue Dart">Blue Dart</option>    <option value="DTDC">DTDC</option>    <option value="Delhivery">Delhivery</option>    <option value="XpressBees">XpressBees</option>    <option value="Ecom Express">Ecom Express</option>    <option value="India Post">India Post</option>    <option value="Shadowfax">Shadowfax</option>    <option value="Porter">Porter</option>  </optgroup>
+  <!-- On-demand / Hyperlocal -->  <optgroup label=" On-Demand & Hyperlocal">    <option value="Dunzo">Dunzo</option>    <option value="Rapido">Rapido</option>    <option value="Lalamove">Lalamove</option>  </optgroup>
+  <!-- E-commerce -->  <optgroup label=" E-commerce">    <option value="Amazon">Amazon</option>    <option value="Flipkart">Flipkart</option>    <option value="Myntra">Myntra</option>    <option value="Ajio">Ajio</option>  </optgroup>
+  <!-- Other -->  <optgroup label="Other">    <option value="Other">Other Agent Name</option>  </optgroup></select>
 
       <label for="mobile">Mobile</label>
       <input type="text" id="mobile" placeholder="Mobile Number" required inputmode="tel" maxlength="15">
