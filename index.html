@@ -15,7 +15,7 @@
     header {
       background: #1e3a8a;
       color: white;
-      text-align: center;
+      /*text-align: center;*/
       padding: 15px;
     }
     .container {
@@ -85,6 +85,57 @@
     button.out-btn:hover {
       background: #b91c1c;
     }
+    .header-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: 640px; /* Optional: limit width for aesthetics */
+  margin: 0 auto;
+}
+.header-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 16px;
+}
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+.header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.header-center h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+}
+
+.header-right {
+  flex: 0 0 48px; /* Reserve space for symmetry */
+}
 
     /* Responsive styles */
     @media (max-width: 768px) {
@@ -118,9 +169,22 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <header>
-    <h1>🏢 Visitor Management</h1>
-  </header>
+  <!--<header>-->
+  <!--  <h1>🏢 Visitor Management</h1>-->
+  <!--</header>-->
+<header>
+  <div class="header-flex">
+    <div class="header-left">
+      <img src="https://i.ibb.co/ZRNQxN5q/file-00000000777461fa82518c850f7680e9.png"
+           alt="Logo"
+           class="header-logo">
+    </div>
+    <div class="header-center">
+      <h1>Visitor Management</h1>
+    </div>
+    <div class="header-right"></div>
+  </div>
+</header>
 
   <div class="container">
     <h2>➕ Add Visitor</h2>
@@ -403,7 +467,7 @@ function loadVisitors(filterDate = null) {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.6
+  v2025.1.0.7
     </div>
 </body>
 </html>
