@@ -175,6 +175,49 @@ header h1 {
       header h1 { font-size: 1.2rem; }
       th, td { padding: 6px; }
     }
+    #filterBtn, #clearFilterBtn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 4px;
+}
+
+#clearFilterBtn {
+  background: #f3f6fa;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+}
+
+#filterBtn:hover {
+  background: #1e40af;
+}
+
+#clearFilterBtn:hover {
+  background: #2563eb;
+  color: white;
+}
+    input[type="date"] {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid #2563eb;
+  font-size: 1rem;
+  outline: none;
+  color: #2563eb;
+  background: #f3f6fa;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.03);
+}
+
+input[type="date"]:focus {
+  border-color: #1e40af;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+}
   </style>
   <!-- Firebase SDKs -->
   <script src="config.js"></script>
@@ -503,7 +546,7 @@ visitorType.addEventListener('change', function() {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.8
+  v2025.1.0.9
     </div>
 </body>
 </html>
