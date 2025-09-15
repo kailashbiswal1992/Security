@@ -1,25 +1,77 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visitor Management</title>
+  <!-- Google Fonts (Poppins) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', Arial, sans-serif;
       background: #f3f6fa;
       margin: 0; padding: 0;
+      transition: background 0.2s, color 0.2s;
     }
-  header {
-  background: #1e3a8a;
-  color: white;
-  padding: 15px;
-  border-bottom-left-radius: 28px;
-  border-bottom-right-radius: 28px;
-  box-shadow: 0 3px 20px rgba(30,58,138,0.08);
-}
+    /* Dark mode styles */
+    body.dark-mode {
+      background: #101827;
+      color: #e3e9f3;
+    }
+    body.dark-mode .container {
+      background: #1e293b;
+      color: #e3e9f3;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    body.dark-mode header {
+      background: #0f172a;
+      color: #fff;
+    }
+    body.dark-mode th {
+      background: #2563eb;
+      color: #fff;
+    }
+    body.dark-mode input,
+    body.dark-mode select {
+      background: #14203a;
+      color: #e3e9f3;
+      border: 1px solid #2563eb;
+    }
+    body.dark-mode input[type="date"] {
+      background: #14203a;
+      color: #60a5fa;
+    }
+    body.dark-mode button,
+    body.dark-mode #filterBtn,
+    body.dark-mode #clearFilterBtn {
+      background: #2563eb !important;
+      color: white !important;
+      border: none !important;
+    }
+    body.dark-mode #clearFilterBtn {
+      background: #14203a !important;
+      color: #60a5fa !important;
+      border: 1px solid #2563eb !important;
+    }
+    body.dark-mode #clearFilterBtn:hover {
+      background: #2563eb !important;
+      color: #fff !important;
+    }
+    body.dark-mode .toast {
+      background: #1e293b;
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+
+    header {
+      background: #1e3a8a;
+      color: white;
+      padding: 15px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      box-shadow: 0 3px 20px rgba(30,58,138,0.08);
+    }
     .container {
       max-width: 95%;
       margin: 20px auto;
@@ -27,6 +79,7 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: background 0.2s, color 0.2s;
     }
     h2 {
       color: #1e3a8a;
@@ -47,6 +100,7 @@
       border: 1px solid #ccc;
       font-size: 1.1rem;
       min-height: 44px;
+      transition: box-shadow 0.18s;
     }
     form button {
       background: #2563eb;
@@ -55,15 +109,59 @@
       cursor: pointer;
       grid-column: span 2;
       font-weight: bold;
+      position: relative;
+      overflow: hidden;
+    }
+    form button:active::after {
+      content: "";
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 120px; height: 120px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: ripple 0.5s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      0% { opacity: 1; transform: scale(0) translate(-50%, -50%);}
+      100% { opacity: 0; transform: scale(2.2) translate(-50%, -50%);}
     }
     form button:hover {
       background: #1e40af;
     }
+
+    /* Input icons */
+    .input-icon {
+      position: relative;
+    }
+    .input-icon input {
+      padding-left: 38px !important;
+    }
+    .input-icon .icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.3em;
+      color: #2563eb;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* Accessibility focus ring */
+    input:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+      outline: none;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
       font-size: 0.95rem;
+      position: relative;
     }
     table, th, td {
       border: 1px solid #ccc;
@@ -75,6 +173,26 @@
     th {
       background: #2563eb;
       color: white;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    td.avatar-cell {
+      padding: 0;
+      text-align: center;
+    }
+    .visitor-avatar {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.02em;
+      line-height: 32px;
+      margin-right: 6px;
+      box-shadow: 0 1px 3px rgba(37,99,235,0.10);
     }
     button.out-btn {
       background: #dc2626;
@@ -83,18 +201,31 @@
       padding: 6px 10px;
       border-radius: 4px;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    button.out-btn:active::after {
+      content: "";
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: ripple 0.5s linear;
+      pointer-events: none;
     }
     button.out-btn:hover {
       background: #b91c1c;
     }
     .header-content {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  max-width: 640px; /* Optional: limit width for aesthetics */
-  margin: 0 auto;
-}
-.header-logo {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .header-logo {
        width: 56px;
       height: 56px;
       border-radius: 50%;
@@ -103,27 +234,24 @@
       border: 2px solid #fff;
       background: #fff;
       flex-shrink: 0;
-
-}
-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: bold;
-}
-.header-flex {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-left {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-}
-
-.header-logo {
-        width: 56px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+    }
+    .header-logo {
+      width: 56px;
       height: 56px;
       border-radius: 50%;
       object-fit: cover;
@@ -131,31 +259,138 @@ header h1 {
       border: 2px solid #fff;
       background: #fff;
       flex-shrink: 0;
-
-}
-
-.header-center {
-  flex: 1;
-  text-align: center;
-}
-
-.header-center h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: bold;
-  color: white;
-}
-
-.header-right {
-  flex: 0 0 48px; /* Reserve space for symmetry */
-}
-
+    }
+    .header-center {
+      flex: 1;
+      text-align: center;
+    }
+    .header-center h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: bold;
+      color: white;
+    }
+    .header-right {
+      flex: 0 0 48px;
+    }
+    #filterBtn, #clearFilterBtn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-left: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    #filterBtn:active::after, #clearFilterBtn:active::after {
+      content: "";
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.13);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: ripple 0.4s linear;
+      pointer-events: none;
+    }
+    #clearFilterBtn {
+      background: #f3f6fa;
+      color: #2563eb;
+      border: 1px solid #2563eb;
+    }
+    #filterBtn:hover {
+      background: #1e40af;
+    }
+    #clearFilterBtn:hover {
+      background: #2563eb;
+      color: white;
+    }
+    input[type="date"] {
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: 1px solid #2563eb;
+      font-size: 1rem;
+      outline: none;
+      color: #2563eb;
+      background: #f3f6fa;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 6px rgba(37,99,235,0.03);
+    }
+    input[type="date"]:focus {
+      border-color: #1e40af;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+    }
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f3f6fa;
+      color: #2563eb;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 1.04em;
+      font-family: 'Poppins', Arial, sans-serif;
+      box-shadow: 0 2px 12px rgba(37,99,235,0.10);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: opacity 0.25s;
+    }
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Dark mode toggle switch */
+    .dark-toggle {
+      position: fixed;
+      top: 15px;
+      right: 18px;
+      z-index: 10;
+      background: #f3f6fa;
+      border-radius: 100px;
+      padding: 5px 14px 5px 10px;
+      box-shadow: 0 1px 7px rgba(37,99,235,0.13);
+      border: 1px solid #e3e9f3;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-family: 'Poppins', Arial, sans-serif;
+      transition: background 0.2s;
+    }
+    .dark-toggle .toggle-icon {
+      font-size: 1.2em;
+      margin-right: 7px;
+      color: #1e3a8a;
+    }
+    .dark-toggle span {
+      color: #2563eb;
+      font-weight: 600;
+      font-size: 1em;
+    }
+    body.dark-mode .dark-toggle {
+      background: #1e293b;
+      border: 1px solid #2563eb;
+    }
+    body.dark-mode .dark-toggle .toggle-icon {
+      color: #60a5fa;
+    }
+    body.dark-mode .dark-toggle span {
+      color: #60a5fa;
+    }
     /* Responsive styles */
     @media (max-width: 768px) {
       form { grid-template-columns: 1fr; }
       table { font-size: 0.85rem; display: block; overflow-x: auto; width: 100%; }
       .container { padding: 10px; }
       form input, form select, form button { font-size: 1.1rem; min-height: 44px; }
+      .dark-toggle { top: 6px; right: 6px; font-size: 0.98em; }
     }
     @media (max-width: 500px) {
       form label {
@@ -168,6 +403,7 @@ header h1 {
         padding: 10px;
         font-size: 1rem;
       }
+      .dark-toggle { top: 2px; right: 2px; }
     }
     @media (max-width: 480px) {
       .container { padding: 4px; }
@@ -175,49 +411,6 @@ header h1 {
       header h1 { font-size: 1.2rem; }
       th, td { padding: 6px; }
     }
-    #filterBtn, #clearFilterBtn {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-  margin-left: 4px;
-}
-
-#clearFilterBtn {
-  background: #f3f6fa;
-  color: #2563eb;
-  border: 1px solid #2563eb;
-}
-
-#filterBtn:hover {
-  background: #1e40af;
-}
-
-#clearFilterBtn:hover {
-  background: #2563eb;
-  color: white;
-}
-    input[type="date"] {
-  padding: 10px 16px;
-  border-radius: 6px;
-  border: 1px solid #2563eb;
-  font-size: 1rem;
-  outline: none;
-  color: #2563eb;
-  background: #f3f6fa;
-  transition: border 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 6px rgba(37,99,235,0.03);
-}
-
-input[type="date"]:focus {
-  border-color: #1e40af;
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
-}
   </style>
   <!-- Firebase SDKs -->
   <script src="config.js"></script>
@@ -225,9 +418,11 @@ input[type="date"]:focus {
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <!--<header>-->
-  <!--  <h1>🏢 Visitor Management</h1>-->
-  <!--</header>-->
+  <!-- Dark mode toggle -->
+  <div class="dark-toggle" tabindex="0" role="button" aria-label="Toggle dark mode" id="darkToggle">
+    <span class="toggle-icon" id="darkIcon">🌙</span>
+    <span id="darkText">Dark</span>
+  </div>
 <header>
   <div class="header-flex">
     <div class="header-left">
@@ -261,10 +456,16 @@ input[type="date"]:focus {
   <!-- Other -->  <optgroup label="Other">    <option value="Other">Other Agent Name</option>  </optgroup></select>
 
       <label for="mobile">Mobile</label>
-      <input type="text" id="mobile" placeholder="Mobile Number" required inputmode="tel" maxlength="15">
+      <div class="input-icon">
+        <span class="icon">📱</span>
+        <input type="text" id="mobile" placeholder="Mobile Number" required inputmode="tel" maxlength="15" aria-label="Mobile Number">
+      </div>
 
       <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Visitor Name" required>
+      <div class="input-icon">
+        <span class="icon">👤</span>
+        <input type="text" id="name" placeholder="Visitor Name" required aria-label="Visitor Name">
+      </div>
 
       <label for="flat">Flat</label>
       <select id="flat" required>
@@ -272,27 +473,31 @@ input[type="date"]:focus {
       </select>
 
       <label for="purpose">Purpose</label>
-      <input type="text" id="purpose" placeholder="Purpose of Visit" required>
+      <input type="text" id="purpose" placeholder="Purpose of Visit" required aria-label="Purpose of Visit">
 
       <label for="vehicle">Vehicle</label>
-      <input type="text" id="vehicle" placeholder="Vehicle Number">
+      <div class="input-icon">
+        <span class="icon">🚗</span>
+        <input type="text" id="vehicle" placeholder="Vehicle Number" aria-label="Vehicle Number">
+      </div>
 
-      <button type="submit">Add Visitor</button>
+      <button type="submit" aria-label="Add Visitor">Add Visitor</button>
     </form>
 
     <h2>📋 Visitor Log</h2>
     <div style="margin-bottom:15px">
-  <label for="dateFilter" style="color:#2563eb;font-weight:bold;">Filter by Date:</label>
-  <input type="date" id="dateFilter" value="">
-  <button type="button" id="filterBtn">Show</button>
-  <button type="button" id="clearFilterBtn">Clear</button>
-</div>
+      <label for="dateFilter" style="color:#2563eb;font-weight:bold;">Filter by Date:</label>
+      <input type="date" id="dateFilter" value="">
+      <button type="button" id="filterBtn" aria-label="Show Filtered Visitors">Show</button>
+      <button type="button" id="clearFilterBtn" aria-label="Clear Filter">Clear</button>
+    </div>
     <table id="visitorTable">
       <thead>
         <tr>
           <th>Date</th>
           <th>Type</th>
           <th>Name</th>
+          <th>Avatar</th>
           <th>Mobile</th>
           <th>Flat</th>
           <th>Purpose</th>
@@ -304,53 +509,91 @@ input[type="date"]:focus {
       <tbody></tbody>
     </table>
   </div>
-
+  <!-- Toast notification -->
+  <div id="toast" class="toast" aria-live="polite"></div>
   <script>
+    // Dark mode toggle logic
+    const darkToggle = document.getElementById('darkToggle');
+    const darkIcon = document.getElementById('darkIcon');
+    const darkText = document.getElementById('darkText');
+
+    function setDarkMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('dark-mode');
+        darkIcon.textContent = '☀️';
+        darkText.textContent = 'Light';
+        localStorage.setItem('darkMode', 'on');
+      } else {
+        document.body.classList.remove('dark-mode');
+        darkIcon.textContent = '🌙';
+        darkText.textContent = 'Dark';
+        localStorage.setItem('darkMode', 'off');
+      }
+    }
+    function toggleDarkMode() {
+      setDarkMode(!document.body.classList.contains('dark-mode'));
+    }
+    darkToggle.addEventListener('click', toggleDarkMode);
+    darkToggle.addEventListener('keypress', function(e){
+      if (e.key === 'Enter' || e.key === ' ') toggleDarkMode();
+    });
+    // On load
+    setDarkMode(localStorage.getItem('darkMode') === 'on');
+
+    // Toast notification
+    function showToast(msg, time = 2200) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), time);
+    }
+
+    // Existing code
     const dateFilterInput = document.getElementById('dateFilter');
-const filterBtn = document.getElementById('filterBtn');
-const clearFilterBtn = document.getElementById('clearFilterBtn');
+    const filterBtn = document.getElementById('filterBtn');
+    const clearFilterBtn = document.getElementById('clearFilterBtn');
 
-filterBtn.addEventListener('click', function() {
-  const val = dateFilterInput.value;
-  if (!val) return;
-  // Convert YYYY-MM-DD to DD/MM/YYYY
-  const parts = val.split("-");
-  const filterDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-  loadVisitors(filterDate);
-});
+    filterBtn.addEventListener('click', function() {
+      const val = dateFilterInput.value;
+      if (!val) return;
+      // Convert YYYY-MM-DD to DD/MM/YYYY
+      const parts = val.split("-");
+      const filterDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      loadVisitors(filterDate);
+    });
 
-clearFilterBtn.addEventListener('click', function() {
-  dateFilterInput.value = "";
-  loadVisitors();
-});
+    clearFilterBtn.addEventListener('click', function() {
+      dateFilterInput.value = "";
+      loadVisitors();
+    });
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     // Load flats from Firestore
-function loadFlatsFromFirebase() {
-  const flatSelect = document.getElementById('flat');
-  flatSelect.innerHTML = '<option value="">Loading flats...</option>';
-  db.collection('flats').get().then(snapshot => {
-    flatSelect.innerHTML = '<option value="">Select Flat</option>';
-    snapshot.forEach(doc => {
-      // Prefer doc.data().number if exists, else use doc.id
-      const flatNumber = doc.data().number || doc.id;
-      // Only add flats with length ≤ 3
-      if (flatNumber && flatNumber.toString().length <= 3) {
-        const option = document.createElement('option');
-        option.value = flatNumber;
-        option.text = `${flatNumber}`;
-        flatSelect.appendChild(option);
-      }
-    });
-    if (flatSelect.options.length === 1) {
-      flatSelect.innerHTML = '<option value="">No flats found</option>';
+    function loadFlatsFromFirebase() {
+      const flatSelect = document.getElementById('flat');
+      flatSelect.innerHTML = '<option value="">Loading flats...</option>';
+      db.collection('flats').get().then(snapshot => {
+        flatSelect.innerHTML = '<option value="">Select Flat</option>';
+        snapshot.forEach(doc => {
+          // Prefer doc.data().number if exists, else use doc.id
+          const flatNumber = doc.data().number || doc.id;
+          // Only add flats with length ≤ 3
+          if (flatNumber && flatNumber.toString().length <= 3) {
+            const option = document.createElement('option');
+            option.value = flatNumber;
+            option.text = `${flatNumber}`;
+            flatSelect.appendChild(option);
+          }
+        });
+        if (flatSelect.options.length === 1) {
+          flatSelect.innerHTML = '<option value="">No flats found</option>';
+        }
+      }).catch(err => {
+        flatSelect.innerHTML = '<option value="">Error loading flats</option>';
+        console.error('Error fetching flats:', err);
+      });
     }
-  }).catch(err => {
-    flatSelect.innerHTML = '<option value="">Error loading flats</option>';
-    console.error('Error fetching flats:', err);
-  });
-}
 
     // Visitor logic (localStorage)
     const form = document.getElementById('visitorForm');
@@ -370,7 +613,7 @@ function loadFlatsFromFirebase() {
       const mobileRegex = /^[6-9]\d{9}$/;
 
       if (!mobileRegex.test(mobileVal)) {
-        alert('Please enter a valid 10-digit mobile number starting with 6-9.');
+        showToast('Please enter a valid 10-digit mobile number starting with 6-9.');
         document.getElementById('mobile').focus();
         return;
       }
@@ -398,7 +641,16 @@ function loadFlatsFromFirebase() {
 
       // 🚨 Send SMS for testing
       sendSMS(visitor);
+      showToast('Visitor added successfully!');
     });
+
+    function getInitials(name) {
+      name = (name || "").trim();
+      if (!name) return "👤";
+      const parts = name.split(' ');
+      if (parts.length === 1) return parts[0][0].toUpperCase();
+      return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    }
 
     function addVisitorToTable(visitor, index) {
       const row = document.createElement('tr');
@@ -406,6 +658,7 @@ function loadFlatsFromFirebase() {
         <td>${visitor.date}</td>
         <td>${visitor.visitorType}</td>
         <td>${visitor.name}</td>
+        <td class="avatar-cell"><span class="visitor-avatar" title="${visitor.name}">${getInitials(visitor.name)}</span></td>
         <td>${visitor.mobile}</td>
         <td>${visitor.flat}</td>
         <td>${visitor.purpose}</td>
@@ -420,73 +673,69 @@ function loadFlatsFromFirebase() {
       tableBody.appendChild(row);
     }
 
-  function saveVisitor(visitor) {
-  db.collection('visitor').add(visitor)
-    .then(() => {
-      refreshTable(); // Optionally refresh table after adding
-    })
-    .catch((err) => {
-      alert('Error saving visitor: ' + err.message);
-      console.error('Firestore error:', err);
-    });
-}
+    function saveVisitor(visitor) {
+      db.collection('visitor').add(visitor)
+        .then(() => {
+          refreshTable();
+        })
+        .catch((err) => {
+          showToast('Error saving visitor: ' + err.message, 3200);
+          console.error('Firestore error:', err);
+        });
+    }
 
-function loadVisitors(filterDate = null) {
-  tableBody.innerHTML = "";
-  const today = new Date();
-  const todayStr = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
+    function loadVisitors(filterDate = null) {
+      tableBody.innerHTML = "";
+      const today = new Date();
+      const todayStr = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
 
-  db.collection('visitor').orderBy('date', 'desc').get()
-    .then(snapshot => {
-      let i = 0;
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        // Show if:
-        // 1. It's today
-        // 2. It's previous date AND outTime is empty
-        // 3. If filterDate is set, show only that date
-        if (
-          filterDate
-            ? data.date === filterDate
-            : (data.date === todayStr || (data.date !== todayStr && !data.outTime))
-        ) {
-          addVisitorToTable(data, i++);
-        }
-      });
-    })
-    .catch(err => {
-      alert('Error loading visitors: ' + err.message);
-      console.error('Firestore error:', err);
-    });
-}
+      db.collection('visitor').orderBy('date', 'desc').get()
+        .then(snapshot => {
+          let i = 0;
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (
+              filterDate
+                ? data.date === filterDate
+                : (data.date === todayStr || (data.date !== todayStr && !data.outTime))
+            ) {
+              addVisitorToTable(data, i++);
+            }
+          });
+        })
+        .catch(err => {
+          showToast('Error loading visitors: ' + err.message, 3200);
+          console.error('Firestore error:', err);
+        });
+    }
 
     function refreshTable() {
       tableBody.innerHTML = "";
       loadVisitors();
     }
 
-   window.markOut = function(index) {
-  db.collection('visitor').orderBy('date', 'desc').get().then(snapshot => {
-    const docs = [];
-    snapshot.forEach(doc => docs.push(doc));
-    const visitorDoc = docs[index];
-    if (visitorDoc) {
-      const now = new Date();
-      visitorDoc.ref.update({
-        outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-      }).then(refreshTable);
+    window.markOut = function(index) {
+      db.collection('visitor').orderBy('date', 'desc').get().then(snapshot => {
+        const docs = [];
+        snapshot.forEach(doc => docs.push(doc));
+        const visitorDoc = docs[index];
+        if (visitorDoc) {
+          const now = new Date();
+          visitorDoc.ref.update({
+            outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          }).then(() => {
+            refreshTable();
+            showToast('Visitor marked out.');
+          });
+        }
+      });
     }
-  });
-}
 
     // 🚨 Twilio SMS Test Function
     function sendSMS(visitor) {
-
       const message = `📢 Visitor Alert:\nName: ${visitor.name}\nFlat: ${visitor.flat}\nPurpose: ${visitor.purpose}\nIn-Time: ${visitor.inTime}`;
-
       // const creds = btoa(`${accountSid}:${authToken}`);
       const creds = btoa(`${twilioConfig.accountSid}:${twilioConfig.authToken}`);
-
       fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioConfig.accountSid}/Messages.json`, {
         method: "POST",
         headers: {
@@ -521,19 +770,19 @@ function loadVisitors(filterDate = null) {
       }
     });
     const visitorType = document.getElementById('visitorType');
-const vendor = document.getElementById('vendor');
-const vendorLabel = document.getElementById('vendorLabel');
+    const vendor = document.getElementById('vendor');
+    const vendorLabel = document.getElementById('vendorLabel');
 
-visitorType.addEventListener('change', function() {
-  if (visitorType.value === 'Delivery Person') {
-    vendor.style.display = '';
-    vendorLabel.style.display = '';
-  } else {
-    vendor.style.display = 'none';
-    vendorLabel.style.display = 'none';
-    vendor.value = '';
-  }
-});
+    visitorType.addEventListener('change', function() {
+      if (visitorType.value === 'Delivery Person') {
+        vendor.style.display = '';
+        vendorLabel.style.display = '';
+      } else {
+        vendor.style.display = 'none';
+        vendorLabel.style.display = 'none';
+        vendor.value = '';
+      }
+    });
   </script>
     <div style="
   position: fixed;
