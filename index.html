@@ -153,6 +153,12 @@
     </form>
 
     <h2>📋 Visitor Log</h2>
+    <div style="margin-bottom:15px">
+  <label for="dateFilter" style="color:#2563eb;font-weight:bold;">Filter by Date:</label>
+  <input type="date" id="dateFilter" value="">
+  <button type="button" id="filterBtn">Show</button>
+  <button type="button" id="clearFilterBtn">Clear</button>
+</div>
     <table id="visitorTable">
       <thead>
         <tr>
@@ -172,6 +178,23 @@
   </div>
 
   <script>
+    const dateFilterInput = document.getElementById('dateFilter');
+const filterBtn = document.getElementById('filterBtn');
+const clearFilterBtn = document.getElementById('clearFilterBtn');
+
+filterBtn.addEventListener('click', function() {
+  const val = dateFilterInput.value;
+  if (!val) return;
+  // Convert YYYY-MM-DD to DD/MM/YYYY
+  const parts = val.split("-");
+  const filterDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+  loadVisitors(filterDate);
+});
+
+clearFilterBtn.addEventListener('click', function() {
+  dateFilterInput.value = "";
+  loadVisitors();
+});
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -279,13 +302,27 @@ function loadFlatsFromFirebase() {
     });
 }
 
-    function loadVisitors() {
+function loadVisitors(filterDate = null) {
   tableBody.innerHTML = "";
+  const today = new Date();
+  const todayStr = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
+
   db.collection('visitor').orderBy('date', 'desc').get()
     .then(snapshot => {
       let i = 0;
       snapshot.forEach(doc => {
-        addVisitorToTable(doc.data(), i++);
+        const data = doc.data();
+        // Show if:
+        // 1. It's today
+        // 2. It's previous date AND outTime is empty
+        // 3. If filterDate is set, show only that date
+        if (
+          filterDate
+            ? data.date === filterDate
+            : (data.date === todayStr || (data.date !== todayStr && !data.outTime))
+        ) {
+          addVisitorToTable(data, i++);
+        }
       });
     })
     .catch(err => {
@@ -366,7 +403,7 @@ function loadFlatsFromFirebase() {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.5
+  v2025.1.0.6
     </div>
 </body>
 </html>
