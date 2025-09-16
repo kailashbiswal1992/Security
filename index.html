@@ -461,6 +461,7 @@ form select {
   <script src="config.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
   <!-- Dark mode toggle -->
@@ -480,7 +481,17 @@ form select {
     </div>
     <div class="header-right"></div>
   </div>
+  <div id="welcomeMsg" style="display:none;font-weight:600;color:#2563eb;font-size:1.25em;margin:18px 0 8px 0;text-align:center;"></div>
 </header>
+<div id="loginContainer" class="container">
+  <h2>🔒 Login</h2>
+  <form id="loginForm">
+    <input type="text" id="loginUsername" placeholder="Username or ID" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+  <div id="loginError" style="color:red;margin-top:8px;"></div>
+</div>
 
   <div class="container">
     <h2>➕ Add Visitor</h2>
@@ -556,6 +567,7 @@ form select {
   </div>
   <!-- Toast notification -->
   <div id="toast" class="toast" aria-live="polite"></div>
+  <button id="logoutBtn" style="display:none;float:right;">Logout</button>
   <script>
     // Dark mode toggle logic
     const darkToggle = document.getElementById('darkToggle');
@@ -868,6 +880,81 @@ function addVisitorToTable(visitor, docId) {
   }
 }
 });
+const loginContainer = document.getElementById('loginContainer');
+const loginForm = document.getElementById('loginForm');
+const loginError = document.getElementById('loginError');
+const mainContainers = document.querySelectorAll('.container:not(#loginContainer)');
+
+// Hide main app until login
+mainContainers.forEach(el => el.style.display = 'none');
+
+function showMainApp() {
+  loginContainer.style.display = 'none';
+  mainContainers.forEach(el => el.style.display = '');
+}
+
+function hideMainApp() {
+  loginContainer.style.display = '';
+  mainContainers.forEach(el => el.style.display = 'none');
+}
+
+// Persistent session check
+function checkSession() {
+  const sessionUser = localStorage.getItem('sessionUser');
+  if (sessionUser) {
+    showMainApp();
+    showWelcome(sessionUser);
+  } else {
+    hideMainApp();
+  }
+}
+checkSession();
+
+loginForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  loginError.textContent = '';
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  // Query Firestore for user
+  firebase.firestore().collection('users')
+    .where('username', '==', username)
+    .where('password', '==', password)
+    .get()
+    .then(snapshot => {
+      if (!snapshot.empty) {
+        // Success
+        localStorage.setItem('sessionUser', username);
+        showMainApp();
+        showWelcome(username);
+      } else {
+        loginError.textContent = 'Invalid credentials. Please try again.';
+      }
+    })
+    .catch(err => {
+      loginError.textContent = 'Login error: ' + err.message;
+    });
+});
+
+// Logout logic (optional):
+// Add a logout button somewhere in your app:
+// <button id="logoutBtn" style="display:none;float:right;">Logout</button>
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem('sessionUser');
+    hideMainApp();
+  });
+}
+
+// Welcome message
+function showWelcome(username) {
+  const welcomeMsg = document.getElementById('welcomeMsg');
+  if (welcomeMsg) {
+    welcomeMsg.textContent = `Welcome, ${username}!`;
+    welcomeMsg.style.display = 'block';
+  }
+}
   </script>
     <div style="
   position: fixed;
@@ -880,7 +967,7 @@ function addVisitorToTable(visitor, docId) {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.12
+  v2025.1.0.12a
     </div>
 </body>
 </html>
