@@ -705,25 +705,25 @@ const visitor = {
       return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
     }
 
-    function addVisitorToTable(visitor, index) {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${visitor.date}</td>
-        <td>${visitor.visitorType}</td>
-        <td>${visitor.name}</td>
-        <td>${visitor.mobile}</td>
-        <td>${visitor.flat}</td>
-        <td>${visitor.purpose}</td>
-        <td>${visitor.vehicle}</td>
-        <td>${visitor.inTime}</td>
-        <td>
-          ${visitor.outTime 
-            ? visitor.outTime 
-            : `<button class="out-btn" onclick="markOut(${index})">Mark Out</button>`}
-        </td>
-      `;
-      tableBody.appendChild(row);
-    }
+    // function addVisitorToTable(visitor, index) {
+    //   const row = document.createElement('tr');
+    //   row.innerHTML = `
+    //     <td>${visitor.date}</td>
+    //     <td>${visitor.visitorType}</td>
+    //     <td>${visitor.name}</td>
+    //     <td>${visitor.mobile}</td>
+    //     <td>${visitor.flat}</td>
+    //     <td>${visitor.purpose}</td>
+    //     <td>${visitor.vehicle}</td>
+    //     <td>${visitor.inTime}</td>
+    //     <td>
+    //       ${visitor.outTime 
+    //         ? visitor.outTime 
+    //         : `<button class="out-btn" onclick="markOut(${index})">Mark Out</button>`}
+    //     </td>
+    //   `;
+    //   tableBody.appendChild(row);
+    // }
 
     function saveVisitor(visitor) {
       db.collection('visitor').add(visitor)
@@ -736,52 +736,64 @@ const visitor = {
         });
     }
 
-    function loadVisitors(filterDate = null) {
-      tableBody.innerHTML = "";
-      const today = new Date();
-      const todayStr = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
+ function loadVisitors(filterDate = null) {
+  tableBody.innerHTML = "";
+  const today = new Date();
+  const todayStr = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
+  db.collection('visitor').orderBy('date', 'desc').get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (
+          filterDate
+            ? data.date === filterDate
+            : (data.date === todayStr || (data.date !== todayStr && !data.outTime))
+        ) {
+          addVisitorToTable(data, doc.id); // pass doc.id instead of index
+        }
+      });
+    })
+    .catch(err => {
+      showToast('Error loading visitors: ' + err.message, 3200);
+      console.error('Firestore error:', err);
+    });
+}
 
-      db.collection('visitor').orderBy('date', 'desc').get()
-        .then(snapshot => {
-          let i = 0;
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            if (
-              filterDate
-                ? data.date === filterDate
-                : (data.date === todayStr || (data.date !== todayStr && !data.outTime))
-            ) {
-              addVisitorToTable(data, i++);
-            }
-          });
-        })
-        .catch(err => {
-          showToast('Error loading visitors: ' + err.message, 3200);
-          console.error('Firestore error:', err);
-        });
-    }
+function addVisitorToTable(visitor, docId) {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${visitor.date}</td>
+    <td>${visitor.visitorType}</td>
+    <td>${visitor.name}</td>
+    <td>${visitor.mobile}</td>
+    <td>${visitor.flat}</td>
+    <td>${visitor.purpose}</td>
+    <td>${visitor.vehicle}</td>
+    <td>${visitor.inTime}</td>
+    <td>
+      ${visitor.outTime 
+        ? visitor.outTime 
+        : `<button class="out-btn" onclick="markOut('${docId}')">Mark Out</button>`}
+    </td>
+  `;
+  tableBody.appendChild(row);
+}
 
     function refreshTable() {
       tableBody.innerHTML = "";
       loadVisitors();
     }
 
-    window.markOut = function(index) {
-      db.collection('visitor').orderBy('date', 'desc').get().then(snapshot => {
-        const docs = [];
-        snapshot.forEach(doc => docs.push(doc));
-        const visitorDoc = docs[index];
-        if (visitorDoc) {
-          const now = new Date();
-          visitorDoc.ref.update({
-            outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-          }).then(() => {
-            refreshTable();
-            showToast('Visitor marked out.');
-          });
-        }
-      });
-    }
+   window.markOut = function(docId) {
+  const visitorRef = db.collection('visitor').doc(docId);
+  const now = new Date();
+  visitorRef.update({
+    outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+  }).then(() => {
+    refreshTable();
+    showToast('Visitor marked out.');
+  });
+}
 
     // 🚨 Twilio SMS Test Function
     function sendSMS(visitor) {
@@ -851,7 +863,7 @@ const visitor = {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.11
+  v2025.1.0.12
     </div>
 </body>
 </html>
