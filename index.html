@@ -840,17 +840,33 @@ function addVisitorToTable(visitor, docId) {
 
    visitorType.addEventListener('change', function() {
   if (visitorType.value === 'Delivery Person') {
-    vendor.style.display = '';
-    vendorLabel.style.display = '';
-    flat.setAttribute('multiple', 'multiple');
-    flat.size = Math.min(flat.options.length, 6); // Show multiple rows if enough flats
-  } else {
-    vendor.style.display = 'none';
-    vendorLabel.style.display = 'none';
-    vendor.value = '';
-    flat.removeAttribute('multiple');
-    flat.size = 1;
+  vendor.style.display = '';
+  vendorLabel.style.display = '';
+  flat.setAttribute('multiple', 'multiple');
+  flat.size = Math.min(flat.options.length, 6);
+
+  // Remove "Select Flat" option from multi-select
+  const selectFlatOption = flat.querySelector('option[value=""]');
+  if (selectFlatOption) {
+    flat.removeChild(selectFlatOption);
   }
+} else {
+  vendor.style.display = 'none';
+  vendorLabel.style.display = 'none';
+  vendor.value = '';
+  flat.removeAttribute('multiple');
+  flat.size = 1;
+
+  // Re-add "Select Flat" option if missing
+  if (!flat.querySelector('option[value=""]')) {
+    const option = document.createElement('option');
+    option.value = "";
+    option.disabled = true;
+    option.selected = true;
+    option.textContent = "Select Flat";
+    flat.insertBefore(option, flat.firstChild);
+  }
+}
 });
   </script>
     <div style="
