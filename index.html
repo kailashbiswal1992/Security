@@ -472,16 +472,16 @@ form select {
 <header>
   <div class="header-flex">
     <div class="header-left">
-      <img src="https://i.ibb.co/ZRNQxN5q/file-00000000777461fa82518c850f7680e9.png"
-           alt="Logo"
-           class="header-logo">
+      <img src="..." class="header-logo">
     </div>
     <div class="header-center">
       <h1>Visitor Management</h1>
     </div>
-    <div class="header-right"></div>
+    <div class="header-right">
+      <button id="logoutBtn" style="display:none;float:right;">Logout</button>
+    </div>
   </div>
-  <div id="welcomeMsg" style="display:none;font-weight:600;color:#2563eb;font-size:1.25em;margin:18px 0 8px 0;text-align:center;"></div>
+  <div id="welcomeMsg" ...></div>
 </header>
 <div id="loginContainer" class="container">
   <h2>🔒 Login</h2>
@@ -567,7 +567,7 @@ form select {
   </div>
   <!-- Toast notification -->
   <div id="toast" class="toast" aria-live="polite"></div>
-  <button id="logoutBtn" style="display:none;float:right;">Logout</button>
+  
   <script>
     // Dark mode toggle logic
     const darkToggle = document.getElementById('darkToggle');
@@ -891,11 +891,12 @@ mainContainers.forEach(el => el.style.display = 'none');
 function showMainApp() {
   loginContainer.style.display = 'none';
   mainContainers.forEach(el => el.style.display = '');
+  logoutBtn.style.display = '';
 }
-
 function hideMainApp() {
   loginContainer.style.display = '';
   mainContainers.forEach(el => el.style.display = 'none');
+  logoutBtn.style.display = 'none';
 }
 
 // Persistent session check
@@ -967,7 +968,7 @@ function showWelcome(username) {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.12a
+  v2025.1.0.12b
     </div>
 </body>
 </html>
