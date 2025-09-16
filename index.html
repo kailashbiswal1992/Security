@@ -667,18 +667,26 @@ form select {
       const inTime = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       const date = now.toLocaleDateString('en-GB'); // DD/MM/YYYY
 
-      const visitor = {
-        date: date,
-        visitorType: document.getElementById('visitorType').value,
-        vendor: document.getElementById('vendor').value,
-        name: document.getElementById('name').value,
-        mobile: document.getElementById('mobile').value,
-        flat: document.getElementById('flat').value,
-        purpose: document.getElementById('purpose').value,
-        vehicle: document.getElementById('vehicle').value,
-        inTime: inTime,
-        outTime: ""
-      };
+    const flatSelect = document.getElementById('flat');
+let flats;
+if (flatSelect.hasAttribute('multiple')) {
+  flats = Array.from(flatSelect.selectedOptions).map(opt => opt.value).filter(v => v).join(', ');
+} else {
+  flats = flatSelect.value;
+}
+
+const visitor = {
+  date: date,
+  visitorType: document.getElementById('visitorType').value,
+  vendor: document.getElementById('vendor').value,
+  name: document.getElementById('name').value,
+  mobile: document.getElementById('mobile').value,
+  flat: flats, // <-- Add it here
+  purpose: document.getElementById('purpose').value,
+  vehicle: document.getElementById('vehicle').value,
+  inTime: inTime,
+  outTime: ""
+};
 
       saveVisitor(visitor);
       refreshTable();
@@ -817,16 +825,20 @@ form select {
     const vendor = document.getElementById('vendor');
     const vendorLabel = document.getElementById('vendorLabel');
 
-    visitorType.addEventListener('change', function() {
-      if (visitorType.value === 'Delivery Person') {
-        vendor.style.display = '';
-        vendorLabel.style.display = '';
-      } else {
-        vendor.style.display = 'none';
-        vendorLabel.style.display = 'none';
-        vendor.value = '';
-      }
-    });
+   visitorType.addEventListener('change', function() {
+  if (visitorType.value === 'Delivery Person') {
+    vendor.style.display = '';
+    vendorLabel.style.display = '';
+    flat.setAttribute('multiple', 'multiple');
+    flat.size = Math.min(flat.options.length, 6); // Show multiple rows if enough flats
+  } else {
+    vendor.style.display = 'none';
+    vendorLabel.style.display = 'none';
+    vendor.value = '';
+    flat.removeAttribute('multiple');
+    flat.size = 1;
+  }
+});
   </script>
     <div style="
   position: fixed;
@@ -839,7 +851,7 @@ form select {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.10
+  v2025.1.0.11
     </div>
 </body>
 </html>
