@@ -619,7 +619,8 @@ form select {
       const flatSelect = document.getElementById('flat');
       flatSelect.innerHTML = '<option value="">Loading flats...</option>';
       db.collection('flats').get().then(snapshot => {
-        flatSelect.innerHTML = '<option value="">Select Flat</option>';
+        // flatSelect.innerHTML = '<option value="">Select Flat</option>';
+        flatSelect.innerHTML = '<option value="" disabled selected>Select Flat</option>';
         snapshot.forEach(doc => {
           // Prefer doc.data().number if exists, else use doc.id
           const flatNumber = doc.data().number || doc.id;
