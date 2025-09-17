@@ -1012,6 +1012,10 @@ function showMainApp() {
   mainContainers.forEach(el => el.style.display = '');
  // logoutBtn.style.display = '';
  sectionSwitcher.style.display = ''; // Show on login
+ // Show visitor by default
+visitorBtn.classList.add('active');
+visitorSection.style.display = '';
+tankerSection.style.display = 'none';
 }
 
 function hideMainApp() {
@@ -1031,7 +1035,7 @@ function checkSession() {
     hideMainApp();
   }
 }
-checkSession();
+document.addEventListener('DOMContentLoaded', checkSession);
 
 loginForm.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -1192,7 +1196,7 @@ visitorBtn.classList.add('active');
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.12k
+  v2025.1.0.12m
     </div>
 </body>
 </html>
