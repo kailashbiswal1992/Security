@@ -798,14 +798,16 @@ function addVisitorToTable(visitor, docId) {
     }
 
 window.markOut = function(docId) {
-  if (!confirm("Are you sure you want to mark this visitor as 'Out'?")) return;
-  const visitorRef = db.collection('visitor').doc(docId);
-  const now = new Date();
-  visitorRef.update({
-    outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-  }).then(() => {
-    refreshTable();
-    showToast('Visitor marked out.');
+  showConfirmModal("Are you sure you want to mark this visitor as 'Out'?", function(confirmed) {
+    if (!confirmed) return;
+    const visitorRef = db.collection('visitor').doc(docId);
+    const now = new Date();
+    visitorRef.update({
+      outTime: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    }).then(() => {
+      refreshTable();
+      showToast('Visitor marked out.');
+    });
   });
 }
 
@@ -958,6 +960,27 @@ function showWelcome(username) {
     welcomeMsg.style.display = 'block';
   }
 }
+// Modal logic
+let confirmCallback = null;
+const confirmModal = document.getElementById('confirmModal');
+const modalOkBtn = document.getElementById('modalOkBtn');
+const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+function showConfirmModal(message, callback) {
+  document.getElementById('confirmMsg').textContent = message;
+  confirmModal.style.display = 'flex';
+  confirmCallback = callback;
+}
+
+modalOkBtn.onclick = function() {
+  confirmModal.style.display = 'none';
+  if (confirmCallback) confirmCallback(true);
+};
+
+modalCancelBtn.onclick = function() {
+  confirmModal.style.display = 'none';
+  if (confirmCallback) confirmCallback(false);
+};
   </script>
     <div style="
   position: fixed;
@@ -970,7 +993,16 @@ function showWelcome(username) {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.12d
+  v2025.1.0.12e
     </div>
+    <div id="confirmModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.32); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:white; color:#2563eb; padding:24px 28px; border-radius:10px; box-shadow:0 4px 24px rgba(30,58,138,0.12); min-width:240px; text-align:center;">
+    <div style="margin-bottom:18px; font-size:1.1em; font-weight:500;" id="confirmMsg">
+      Are you sure you want to mark this visitor as 'Out'?
+    </div>
+    <button id="modalOkBtn" style="background:#2563eb; color:white; border:none; padding:8px 22px; border-radius:5px; margin-right:14px; font-weight:bold;">OK</button>
+    <button id="modalCancelBtn" style="background:#f3f6fa; color:#2563eb; border:1px solid #2563eb; padding:8px 22px; border-radius:5px; font-weight:bold;">Cancel</button>
+  </div>
+</div>
 </body>
 </html>
