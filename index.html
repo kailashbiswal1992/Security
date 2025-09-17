@@ -1116,20 +1116,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
 tankerForm.addEventListener('submit', function(e) {
   e.preventDefault();
+
+  const driverMobileVal = document.getElementById('driverMobile').value.trim();
+  const mobileRegex = /^[6-9]\d{9}$/;
+
+  if (!mobileRegex.test(driverMobileVal)) {
+    showToast('Please enter a valid 10-digit mobile number for Driver (starting with 6-9).');
+    document.getElementById('driverMobile').focus();
+    return;
+  }
+
   const now = new Date();
   const deliveryTimeInput = document.getElementById('deliveryTime').value;
-const deliveryTime = deliveryTimeInput
-  ? deliveryTimeInput
-  : now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const deliveryTime = deliveryTimeInput
+    ? deliveryTimeInput
+    : now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-const tanker = {
-  date: now.toLocaleDateString('en-GB'),
-  tankerType: document.getElementById('tankerType').value,
-  tankerNumber: document.getElementById('tankerNumber').value,
-  driverName: document.getElementById('driverName').value,
-  driverMobile: document.getElementById('driverMobile').value,
-  deliveryTime: deliveryTime
-};
+  const tanker = {
+    date: now.toLocaleDateString('en-GB'),
+    tankerType: document.getElementById('tankerType').value,
+    tankerNumber: document.getElementById('tankerNumber').value,
+    driverName: document.getElementById('driverName').value,
+    driverMobile: driverMobileVal,
+    deliveryTime: deliveryTime
+  };
+
   db.collection('tanker').add(tanker)
     .then(() => {
       loadTankerDetails();
@@ -1196,7 +1207,7 @@ visitorBtn.classList.add('active');
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.12m
+  v2025.1.0.12n
     </div>
 </body>
 </html>
