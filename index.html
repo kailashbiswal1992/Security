@@ -797,7 +797,8 @@ function addVisitorToTable(visitor, docId) {
       loadVisitors();
     }
 
-   window.markOut = function(docId) {
+window.markOut = function(docId) {
+  if (!confirm("Are you sure you want to mark this visitor as 'Out'?")) return;
   const visitorRef = db.collection('visitor').doc(docId);
   const now = new Date();
   visitorRef.update({
@@ -969,7 +970,7 @@ function showWelcome(username) {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.12c
+  v2025.1.0.12d
     </div>
 </body>
 </html>
