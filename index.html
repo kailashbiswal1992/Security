@@ -576,6 +576,52 @@ form select {
     <button id="modalOkBtn" style="background:#2563eb; color:white; border:none; padding:8px 22px; border-radius:5px; margin-right:14px; font-weight:bold;">OK</button>
     <button id="modalCancelBtn" style="background:#f3f6fa; color:#2563eb; border:1px solid #2563eb; padding:8px 22px; border-radius:5px; font-weight:bold;">Cancel</button>
   </div>
+  <h2>🚚 Add Tanker Details</h2>
+<form id="tankerForm" autocomplete="off">
+  <label for="tankerType">Tanker Type</label>
+  <select id="tankerType" required>
+    <option value="">Select Tanker Type</option>
+    <option value="Water">Water</option>
+    <option value="Diesel">Diesel</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <label for="tankerNumber">Tanker Number</label>
+  <input type="text" id="tankerNumber" placeholder="Tanker Vehicle Number" required>
+
+  <label for="driverName">Driver Name</label>
+  <input type="text" id="driverName" placeholder="Driver Name" required>
+  
+  <label for="driverMobile">Driver Mobile</label>
+  <input type="text" id="driverMobile" placeholder="Driver Mobile Number" required inputmode="tel" maxlength="15">
+
+  <label for="flatDelivered">Flat Delivered</label>
+  <select id="flatDelivered" required>
+    <option value="">Loading flats...</option>
+    <!-- Populate dynamically from Firestore (reuse visitor flat logic) -->
+  </select>
+
+  <label for="deliveryTime">Delivery Time</label>
+  <input type="time" id="deliveryTime" required>
+
+  <button type="submit" aria-label="Add Tanker Details">Add Tanker</button>
+</form>
+
+<h2>🗒️ Tanker Log</h2>
+<table id="tankerTable">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Tanker Type</th>
+      <th>Tanker Number</th>
+      <th>Driver Name</th>
+      <th>Driver Mobile</th>
+      <th>Flat Delivered</th>
+      <th>Delivery Time</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 </div>
   <script>
     // Dark mode toggle logic
@@ -990,6 +1036,80 @@ modalCancelBtn.onclick = function() {
   confirmModal.style.display = 'none';
   if (confirmCallback) confirmCallback(false);
 };
+const tankerForm = document.getElementById('tankerForm');
+const tankerTableBody = document.querySelector('#tankerTable tbody');
+
+// Load flats for tanker form (reuse function)
+function loadFlatsForTanker() {
+  const flatDelivered = document.getElementById('flatDelivered');
+  flatDelivered.innerHTML = '<option value="">Loading flats...</option>';
+  db.collection('flats').get().then(snapshot => {
+    flatDelivered.innerHTML = '<option value="" disabled selected>Select Flat</option>';
+    snapshot.forEach(doc => {
+      const flatNumber = doc.data().number || doc.id;
+      if (flatNumber && flatNumber.toString().length <= 3) {
+        const option = document.createElement('option');
+        option.value = flatNumber;
+        option.text = `${flatNumber}`;
+        flatDelivered.appendChild(option);
+      }
+    });
+  });
+}
+
+// On load
+document.addEventListener('DOMContentLoaded', function () {
+  loadFlatsForTanker();
+  loadTankerDetails();
+});
+
+tankerForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const now = new Date();
+  const tanker = {
+    date: now.toLocaleDateString('en-GB'),
+    tankerType: document.getElementById('tankerType').value,
+    tankerNumber: document.getElementById('tankerNumber').value,
+    driverName: document.getElementById('driverName').value,
+    driverMobile: document.getElementById('driverMobile').value,
+    flatDelivered: document.getElementById('flatDelivered').value,
+    deliveryTime: document.getElementById('deliveryTime').value
+  };
+  db.collection('tanker').add(tanker)
+    .then(() => {
+      loadTankerDetails();
+      tankerForm.reset();
+      showToast('Tanker details added!');
+    })
+    .catch((err) => {
+      showToast('Error saving tanker: ' + err.message, 3200);
+    });
+});
+
+function loadTankerDetails() {
+  tankerTableBody.innerHTML = "";
+  db.collection('tanker').orderBy('date', 'desc').get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        const tanker = doc.data();
+        addTankerToTable(tanker);
+      });
+    });
+}
+
+function addTankerToTable(tanker) {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${tanker.date}</td>
+    <td>${tanker.tankerType}</td>
+    <td>${tanker.tankerNumber}</td>
+    <td>${tanker.driverName}</td>
+    <td>${tanker.driverMobile}</td>
+    <td>${tanker.flatDelivered}</td>
+    <td>${tanker.deliveryTime}</td>
+  `;
+  tankerTableBody.appendChild(row);
+}
   </script>
     <div style="
   position: fixed;
@@ -1002,7 +1122,7 @@ modalCancelBtn.onclick = function() {
   pointer-events: none;
   font-family: 'Poppins', Arial, sans-serif;
 ">
-  v2025.1.0.12f
+  v2025.1.0.12g
     </div>
 </body>
 </html>
